@@ -30,7 +30,7 @@ typedef struct Desktop {
     int haswin;
     int hasurgn;
     int showbar;
-    char *title;
+    char title[52];
 } Desktop;
 
 typedef struct BadStatus {
@@ -129,7 +129,7 @@ void runbar() {
         printbar(stat);
         // renderbar(stat);
         for (int i = 0; i < stat->desknum; i++) {
-            free(stat->desks[i]->title);
+            // free(stat->desks[i]->title);
             free(stat->desks[i]);
         }
         if (stat->desknum)
@@ -149,11 +149,12 @@ void parsebar(BadStatus *stat) {
         stat->deskfocus = 0;
         return;
     }
-    stat->desks = malloc(sizeof(Desktop *) * stat->desknum + 1);
+    stat->desks = malloc(sizeof(Desktop *) * (stat->desknum + 1));
     for (int i = 0; i < stat->desknum; i++) {
-        stat->desks[i] = malloc(sizeof(Desktop));
-        stat->desks[i]->title = malloc(sizeof(char) * 52);
-        scanf(" %d:%d:%d:%48[^::et::]::et::", &stat->desks[i]->haswin, &stat->desks[i]->hasurgn, &stat->desks[i]->showbar, stat->desks[i]->title);
+        stat->desks[i] = malloc(sizeof(Desktop) + 1);
+        // stat->desks[i]->title = malloc(sizeof(char) * 52);
+        scanf(" %d:%d:%d:%48[^:]::et::", &stat->desks[i]->haswin, &stat->desks[i]->hasurgn, &stat->desks[i]->showbar, stat->desks[i]->title);
+        stat->desks[i]->title[48] = '\0';
     }
     getchar(); // \n
     fflush(stdin);
