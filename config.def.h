@@ -14,4 +14,6 @@
 #define PANELFONT       "-*-courier-bold-r-normal-*-*-140-*-*-*-*-*-*"
 #define PANELSTARTOFST  6
 
+#define TIMEFORMAT      "%H:%M:%S %d.%m.%Y" // strftime() format
+
 #endif // CONFIG_H

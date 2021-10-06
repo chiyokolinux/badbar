@@ -22,9 +22,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <err.h>
+#include <time.h>
 #include <X11/Xlib.h>
 
-#define ITOA(n)         my_itoa((char [3]) { 0 }, (n) )
+#define ITOA(n)         my_itoa((char [9]) { 0 }, (n) )
 
 typedef struct Desktop {
     int haswin;
@@ -127,9 +128,8 @@ void runbar() {
     while (!feof(stdin)) {
         parsebar(stat);
         printbar(stat);
-        // renderbar(stat);
+        renderbar(stat);
         for (int i = 0; i < stat->desknum; i++) {
-            // free(stat->desks[i]->title);
             free(stat->desks[i]);
         }
         if (stat->desknum)
@@ -152,11 +152,9 @@ void parsebar(BadStatus *stat) {
     stat->desks = malloc(sizeof(Desktop *) * (stat->desknum + 1));
     for (int i = 0; i < stat->desknum; i++) {
         stat->desks[i] = malloc(sizeof(Desktop) + 1);
-        // stat->desks[i]->title = malloc(sizeof(char) * 52);
-        scanf(" %d:%d:%d:%48[^:]::et::", &stat->desks[i]->haswin, &stat->desks[i]->hasurgn, &stat->desks[i]->showbar, stat->desks[i]->title);
+        scanf(" %d:%d:%d:%48[^\v]\v", &stat->desks[i]->haswin, &stat->desks[i]->hasurgn, &stat->desks[i]->showbar, stat->desks[i]->title);
         stat->desks[i]->title[48] = '\0';
     }
-    getchar(); // \n
     fflush(stdin);
 }
 
@@ -166,9 +164,10 @@ void parsebar(BadStatus *stat) {
 void printbar(BadStatus *stat) {
     printf("%d:%d", stat->desknum, stat->deskfocus);
     for (int i = 0; i < stat->desknum; i++) {
-        printf(" %d:%d:%d:%.48s::et::", stat->desks[i]->haswin, stat->desks[i]->hasurgn, stat->desks[i]->showbar, stat->desks[i]->title);
+        printf(" %d:%d:%d:%.48s:", stat->desks[i]->haswin, stat->desks[i]->hasurgn, stat->desks[i]->showbar, stat->desks[i]->title);
     }
     putchar('\n');
+    fflush(stdout);
 }
 
 /**
@@ -178,9 +177,9 @@ void renderbar(BadStatus *stat) {
     XSetForeground(dis, gc, bgcol);
     XFillRectangle(dis, pm, gc, 0, 0, ww, PANEL_HEIGHT);
 
-    /**for (unsigned int i = 0; i < 4; i++) {
-        if (i == currdeskidx || deskhasurgn(&desktops[i])) {
-            XSetForeground(dis, gc, deskhasurgn(&desktops[i]) ? ((i == currdeskidx) ? win_focus_urgn : win_unfocus_urgn) : win_focus);
+    for (int i = 0; i < stat->desknum; i++) {
+        if (i == stat->deskfocus || stat->desks[i]->hasurgn) {
+            XSetForeground(dis, gc, stat->desks[i]->hasurgn ? ((i == stat->deskfocus) ? win_focus_urgn : win_unfocus_urgn) : win_focus);
             XFillRectangle(dis, pm, gc, i * PANEL_HEIGHT, 0, PANEL_HEIGHT, PANEL_HEIGHT);
         } else {
             XSetForeground(dis, gc, win_unfocus);
@@ -198,9 +197,9 @@ void renderbar(BadStatus *stat) {
     struct tm* tm_info;
     timer = time(NULL);
     tm_info = localtime(&timer);
-    strftime(buffer, 22, "%H:%M:%S %d.%m.%Y", tm_info);
+    strftime(buffer, 22, TIMEFORMAT, tm_info);
     XSetForeground(dis, gc, fgcol);
-    XDrawString(dis, pm, gc, ww - (9 * PANEL_HEIGHT), PANEL_HEIGHT - PANELSTARTOFST, buffer, 19);**/
+    XDrawString(dis, pm, gc, ww - (9 * PANEL_HEIGHT), PANEL_HEIGHT - PANELSTARTOFST, buffer, 19);
 
     XLockDisplay(dis);
     XCopyArea(dis, pm, bar, gc, 0, 0, ww, PANEL_HEIGHT, 0, 0);
