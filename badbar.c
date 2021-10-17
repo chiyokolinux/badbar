@@ -177,6 +177,7 @@ void renderbar(BadStatus *stat) {
     XSetForeground(dis, gc, bgcol);
     XFillRectangle(dis, pm, gc, 0, 0, ww, PANEL_HEIGHT);
 
+    /* desktops */
     for (int i = 0; i < stat->desknum; i++) {
         if (i == stat->deskfocus || stat->desks[i]->hasurgn) {
             XSetForeground(dis, gc, stat->desks[i]->hasurgn ? ((i == stat->deskfocus) ? win_focus_urgn : win_unfocus_urgn) : win_focus);
@@ -189,9 +190,11 @@ void renderbar(BadStatus *stat) {
         XDrawString(dis, pm, gc, i * PANEL_HEIGHT + PANELSTARTOFST, PANEL_HEIGHT - PANELSTARTOFST, ITOA(i+1), strlen(ITOA(i+1)));
     }
 
+    /* clock bg */
     XSetForeground(dis, gc, win_unfocus);
     XFillRectangle(dis, pm, gc, ww - (9 * PANEL_HEIGHT) - PANELSTARTOFST, 0, PANELSTARTOFST + (9 * PANEL_HEIGHT), PANEL_HEIGHT);
 
+    /* clock text */
     time_t timer;
     char buffer[20];
     struct tm* tm_info;
@@ -200,6 +203,14 @@ void renderbar(BadStatus *stat) {
     strftime(buffer, 22, TIMEFORMAT, tm_info);
     XSetForeground(dis, gc, fgcol);
     XDrawString(dis, pm, gc, ww - (9 * PANEL_HEIGHT), PANEL_HEIGHT - PANELSTARTOFST, buffer, 19);
+
+    /* window title bg */
+    XSetForeground(dis, gc, win_unfocus);
+    XFillRectangle(dis, pm, gc, stat->desknum * PANEL_HEIGHT, 0, PANELSTARTOFST + (14 * PANEL_HEIGHT), PANEL_HEIGHT);
+
+    /* focused window title */
+    XSetForeground(dis, gc, fgcol);
+    XDrawString(dis, pm, gc, stat->desknum * PANEL_HEIGHT + PANELSTARTOFST, PANEL_HEIGHT - PANELSTARTOFST, stat->desks[stat->deskfocus]->title, strnlen(stat->desks[stat->deskfocus]->title, 48));
 
     XCopyArea(dis, pm, bar, gc, 0, 0, ww, PANEL_HEIGHT, 0, 0);
     XSync(dis, False);
