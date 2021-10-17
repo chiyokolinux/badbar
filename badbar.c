@@ -25,7 +25,7 @@
 #include <time.h>
 #include <X11/Xlib.h>
 
-#define ITOA(n)         my_itoa((char [9]) { 0 }, (n) )
+#define ITOA(n)         my_itoa((char [12]) { 0 }, (n) )
 
 typedef struct Desktop {
     int haswin;
@@ -127,7 +127,7 @@ void runbar() {
     stat->deskfocus = 0;
     while (!feof(stdin)) {
         parsebar(stat);
-        printbar(stat);
+        // printbar(stat);
         renderbar(stat);
         for (int i = 0; i < stat->desknum; i++) {
             free(stat->desks[i]);
@@ -201,10 +201,8 @@ void renderbar(BadStatus *stat) {
     XSetForeground(dis, gc, fgcol);
     XDrawString(dis, pm, gc, ww - (9 * PANEL_HEIGHT), PANEL_HEIGHT - PANELSTARTOFST, buffer, 19);
 
-    XLockDisplay(dis);
     XCopyArea(dis, pm, bar, gc, 0, 0, ww, PANEL_HEIGHT, 0, 0);
     XSync(dis, False);
-    XUnlockDisplay(dis);
 }
 
 /**
